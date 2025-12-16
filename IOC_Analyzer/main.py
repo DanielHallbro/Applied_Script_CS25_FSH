@@ -1,3 +1,7 @@
+import argparse # Ny import för att hantera kommandoradsargument i Linux CLI.
+
+VERSION = "1.0.0" 
+DEVELOPER = "Daniel Hållbro (Student)"
 
 def analyze_ioc(ioc):
     """Placeholder för analysfunktionen."""
@@ -14,6 +18,26 @@ def analyze_ioc(ioc):
 
 
 def main():
+    # NYTT: Argument Parser
+    # -h/--help läggs till automatiskt av argparse
+        # Fundera på att göra beskrivningen mer detaljerad
+    parser = argparse.ArgumentParser(
+        description="IOC Analyzer Script – Automatiserad hotanalys från VirusTotal och AbuseIPDB.\n\n"
+                    "Exempel på användning:\n"
+                    "  python3 main.py -v\n"
+                    "  python3 main.py --help",
+        formatter_class=argparse.RawTextHelpFormatter # För snyggare exempel/beskrivning
+    )
+    
+    # Version flagga -v/--version
+    parser.add_argument(
+        '-v', '--version', 
+        action='version', 
+        version=f'%(prog)s {VERSION} av {DEVELOPER}', 
+        help="Visar scriptets version och utvecklare."
+    )
+
+
     print("Välkommen till IOC Analyzer (v0.1)")
     
     while True:
