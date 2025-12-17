@@ -1,9 +1,12 @@
 import argparse # Import för att hantera kommandoradsargument i Linux CLI.
-from datetime import datetime # Ny import för tidsstämpel i startloggen
+from datetime import datetime # Import för tidsstämpel i startloggen
 import sys
+import os # Import för miljövariabler
 
 # Import från den egna logger-modulen modules/logger.py
 from modules.logger import setup_logger, log
+from modules.utils import get_ioc_type # Importerar utils för IOC-validering.
+from modules.pre_checks import run_pre_checks # Importerar pre_checks för miljökontroller
 
 VERSION = "0.3" 
 DEVELOPER = "Daniel Hållbro (Student)"
@@ -19,7 +22,7 @@ def analyze_ioc(ioc):
     log(f"--- Analys startad för: {ioc} ---", 'INFO') # Ersatt print med log
     
     # Implementera validering av IOC-format (IP eller URL)
-    # Implementera API-anrop (Virustotal och AbuseIPDB) och hantering av svar
+    # Implementera API-anrop (Virustotal, AlienVault OTX och AbuseIPDB) och hantering av svar
     
     log("Analysen slutförd. Resultat saknas (ej implementerat ännu).", 'INFO') # Ersatt print med log
 
@@ -28,6 +31,11 @@ def main():
     # Sätt upp loggern vid programmets start
     setup_logger(LOG_FILE_PATH)
     log(f"IOC Analyzer v{VERSION} startad ({datetime.now().strftime('%Y-%m-%d %H:%M:%S')})", 'INFO')
+
+
+    if not run_pre_checks(LOG_FILE_PATH):
+        log("Miljökontroller misslyckades. Avslutar kontrollerat.", 'CRITICAL')
+        sys.exit(1) # Viktigt: Avsluta scriptet kontrollerat om VT saknas!
 
     # Argumentparser för kommandoradsargument
         # Fundera på att göra beskrivningen mer detaljerad. Lagt till -t/--target-exempel.
