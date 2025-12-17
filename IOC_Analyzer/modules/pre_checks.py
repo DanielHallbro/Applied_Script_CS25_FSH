@@ -5,7 +5,7 @@ import socket
 from modules.logger import log
 
 def check_internet_connection():
-    """VG-krav 1: Kontrollera nätverksstatus genom att försöka nå en pålitlig server."""
+    # Kontrollera nätverksstatus genom att försöka nå en pålitlig server.
     
     # Försöker ansluta till Googles DNS-server (8.8.8.8) på port 53 (DNS).
     # Detta testar både nätverk och DNS-upplösning.
