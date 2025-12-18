@@ -8,24 +8,57 @@ from modules.logger import setup_logger, log
 from modules.utils import get_ioc_type # Importerar utils för IOC-validering.
 from modules.pre_checks import run_pre_checks # Importerar pre_checks för miljökontroller
 
-VERSION = "0.3" 
+# Import för API-anrop
+from modules.virustotal import check_ip as check_vt_ip, check_url_or_hash as check_vt_other
+from modules.abuseipdb import check_ip as check_abuse_ip
+from modules.ipinfo import check_ip as check_ipinfo_ip
+from modules.formatter import format_ip_analysis
+
+VERSION = "0.4" 
 DEVELOPER = "Daniel Hållbro (Student)"
 LOG_FILE_PATH = "ioc_analyzer.log" # Loggfilens namn. Information om filens namn och sökväg ska in i README.
 
 
 def analyze_ioc(ioc):
-    """Placeholder för analysfunktionen."""
-    ioc = ioc.strip()
-    if not ioc:
-        return
-        
-    log(f"--- Analys startad för: {ioc} ---", 'INFO') # Ersatt print med log
-    
-    # Implementera validering av IOC-format (IP eller URL)
-    # Implementera API-anrop (Virustotal, AlienVault OTX och AbuseIPDB) och hantering av svar
-    
-    log("Analysen slutförd. Resultat saknas (ej implementerat ännu).", 'INFO') # Ersatt print med log
 
+    log(f"--- Analys startad för: {ioc} ---", 'INFO') 
+
+    ioc_type = get_ioc_type(ioc)
+    
+    api_results = []
+
+    if ioc_type == 'IP':
+        log("IOC-typ: IP-adress. Använder multisource IP-analys.", 'DEBUG')
+        
+        # Anrop till alla tre API:er för IP-analys
+        vt_result = check_vt_ip(ioc)
+        abuse_result = check_abuse_ip(ioc)
+        ipinfo_result = check_ipinfo_ip(ioc)
+
+        # Samla in alla resultat
+        api_results.append(vt_result)
+        api_results.append(abuse_result)
+        api_results.append(ipinfo_result)
+        
+        # Använd formatter för att skriva ut snyggt
+        formatted_output = format_ip_analysis(api_results, ioc)
+        print(formatted_output)
+        log(f"Formaterad analysrapport:\n{formatted_output}", 'INFO') # Säkerställ att logga formaterad output på ett snyggt sätt.
+
+        # PLACEHOLDER: Lägg till hantering av URL/Hash i formatter.py senare.
+
+    elif ioc_type == 'URL' or ioc_type == 'UNKNOWN':
+        log(f"IOC-typ: {ioc_type}. Använder VirusTotal för analys.", 'DEBUG')
+        
+        vt_result = check_vt_other(ioc)
+        api_results.append(vt_result)
+        
+        # TEMPORÄR utmatning för URL/UNKNOWN (tills placeholder på rad 47 är implementerad)
+        print("\n--- RÅDATA FRÅN API:ER ---")
+        print(f"[VirusTotal] Status: {vt_result.get('status')}, Raw Data: {vt_result.get('data')}")
+        log(f"Rådata från VT (Övrigt): {vt_result}", 'DEBUG')
+        
+    log("Analysen slutförd och presenterades.", 'INFO')
 
 def main():
     # Sätt upp loggern vid programmets start
@@ -38,7 +71,7 @@ def main():
         sys.exit(1) # Viktigt: Avsluta scriptet kontrollerat om VT saknas!
 
     # Argumentparser för kommandoradsargument
-        # Fundera på att göra beskrivningen mer detaljerad. Lagt till -t/--target-exempel.
+        # Fundera på att göra beskrivningen mer detaljerad.
     parser = argparse.ArgumentParser(
         description="IOC Analyzer Script – Automatiserad hotanalys från VirusTotal och AbuseIPDB.\n\n"
                     "Exempel på användning:\n"
@@ -60,14 +93,14 @@ def main():
     parser.add_argument(
         '-t', '--target', 
         type=str,
-        help="-t eller --target för att specificera en IOC (IP eller URL) direkt från kommandoraden."
+        help="-t eller --target för att specificera en IOC (IP eller URL) direkt från kommandoraden. Scriptet körs i icke-interaktivt läge."
     )
 
     args = parser.parse_args()
 
     # Feature: Icke-interaktivt läge med target-flagga
     if args.target:
-        log(f"Startar analys i icke-interaktivt läge för: {args.target}", 'INFO') # Ersatt print med log
+        log(f"Startar analys i icke-interaktivt läge för: {args.target}", 'INFO') 
         analyze_ioc(args.target)
     else:
         # Endast om inget target skickas, går vi in i interaktivt läge
@@ -78,7 +111,7 @@ def main():
                 ioc = input("Ange IOC (IP eller URL) att analysera, eller 'exit' för att avsluta: ")
             
                 if ioc.lower() == 'exit':
-                    log("Användaren valde att avsluta.", 'INFO') # Ersatt print med log
+                    log("Användaren valde att avsluta.", 'INFO') 
                     break
                     
                 analyze_ioc(ioc)
@@ -95,7 +128,7 @@ def main():
                 break
 
 
-    log("Scriptet avslutades kontrollerat.", 'INFO') # Ersatt print med log
+    log("Scriptet avslutades kontrollerat.", 'INFO') 
 
 if __name__ == "__main__":
     main()
