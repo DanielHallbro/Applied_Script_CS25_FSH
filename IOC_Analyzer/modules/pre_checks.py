@@ -39,7 +39,7 @@ def check_api_keys():
     
     vt_key = os.getenv('VT_API_KEY')
     abuse_key = os.getenv('ABUSE_API_KEY')
-    otx_key = os.getenv('OTX_API_KEY') 
+    ipinfo_key = os.getenv('IPINFO_API_KEY') # Ändrad till IPINFO 
     
     # 1. Kontrollera MINIMUMKRAVET (VirusTotal)
     if not vt_key:
@@ -52,8 +52,8 @@ def check_api_keys():
     missing_optional = []
     if not abuse_key:
         missing_optional.append('ABUSE_API_KEY')
-    if not otx_key:
-        missing_optional.append('OTX_API_KEY')
+    if not ipinfo_key: 
+        missing_optional.append('IPINFO_API_KEY') # Ändrad till IPINFO
 
     if missing_optional:
         log(f"VARNING: Följande VALFRIA API-nycklar saknas: {', '.join(missing_optional)}.", 'WARNING')
