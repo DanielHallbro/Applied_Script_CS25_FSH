@@ -9,3 +9,7 @@ requirements.txt
 
 #__Pycache__ stays local
 __pycache__
+
+#Cache-file (FB1) stays local
+ioc_cache.json
+
