@@ -13,14 +13,15 @@ from modules.virustotal import check_ip as check_vt_ip, check_url_or_hash as che
 from modules.abuseipdb import check_ip as check_abuse_ip
 from modules.ipinfo import check_ip as check_ipinfo_ip
 from modules.formatter import format_ip_analysis
+from modules.formatter import format_other_analysis
 
-VERSION = "0.4" 
+VERSION = "0.5" 
 DEVELOPER = "Daniel Hållbro (Student)"
 LOG_FILE_PATH = "ioc_analyzer.log" # Loggfilens namn. Information om filens namn och sökväg ska in i README.
 
 
 def analyze_ioc(ioc):
-
+    # Analyserar en IOC (IP, URL/Domain) med hjälp av olika API:er.
     log(f"--- Analys startad för: {ioc} ---", 'INFO') 
 
     ioc_type = get_ioc_type(ioc)
@@ -43,9 +44,7 @@ def analyze_ioc(ioc):
         # Använd formatter för att skriva ut snyggt
         formatted_output = format_ip_analysis(api_results, ioc)
         print(formatted_output)
-        log(f"Formaterad analysrapport:\n{formatted_output}", 'INFO') # Säkerställ att logga formaterad output på ett snyggt sätt.
-
-        # PLACEHOLDER: Lägg till hantering av URL/Hash i formatter.py senare.
+        log(f"Formaterad analysrapport:\n{formatted_output}", 'INFO') # Säkerställer att logga formaterad output på ett snyggt sätt.
 
     elif ioc_type == 'URL' or ioc_type == 'UNKNOWN':
         log(f"IOC-typ: {ioc_type}. Använder VirusTotal för analys.", 'DEBUG')
@@ -53,10 +52,9 @@ def analyze_ioc(ioc):
         vt_result = check_vt_other(ioc)
         api_results.append(vt_result)
         
-        # TEMPORÄR utmatning för URL/UNKNOWN (tills placeholder på rad 47 är implementerad)
-        print("\n--- RÅDATA FRÅN API:ER ---")
-        print(f"[VirusTotal] Status: {vt_result.get('status')}, Raw Data: {vt_result.get('data')}")
-        log(f"Rådata från VT (Övrigt): {vt_result}", 'DEBUG')
+        formatted_output = format_other_analysis(vt_result, ioc)
+        print(formatted_output)
+        log(f"Formaterad analysrapport:\n{formatted_output}", 'INFO') # Säkerställer att logga formaterad output på ett snyggt sätt.
         
     log("Analysen slutförd och presenterades.", 'INFO')
 
