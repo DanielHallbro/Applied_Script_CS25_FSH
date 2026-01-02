@@ -14,7 +14,6 @@ def load_cache() -> dict:
         
     try:
         with open(CACHE_FILE, 'r') as f:
-            log(f"Använder cachad data från {CACHE_FILE}.", 'DEBUG')
             return json.load(f)
     except json.JSONDecodeError:
         log(f"Cache: Varning! {CACHE_FILE} är korrupt och återskapas.", 'WARNING')
@@ -31,7 +30,6 @@ def save_cache():
     try:
         with open(CACHE_FILE, 'w') as f:
             json.dump(IOC_CACHE, f, indent=4)
-        log(f"Cache: Sparade uppdaterad data till {CACHE_FILE}.", 'DEBUG')
     except Exception as e:
         log(f"Cache: Kunde inte spara cache-filen: {e}", 'ERROR')
 
