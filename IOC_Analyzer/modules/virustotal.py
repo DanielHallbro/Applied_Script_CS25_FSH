@@ -35,7 +35,7 @@ def check_ip(ioc: str) -> dict:
         # Riskpoäng: Rådata är antalet "malicious" rapporter.
         raw_score = malicious
         
-        log(f"VirusTotal: Lyckades hämta data för {ioc}. Malicious count: {raw_score}", 'DEBUG') # ändra till 'INFO'? Fundera på detta.
+        log(f"VirusTotal: Lyckades hämta data för {ioc}. Malicious count: {raw_score}", 'DEBUG')
 
         return {
             "source": "VirusTotal",

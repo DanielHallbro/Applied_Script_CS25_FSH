@@ -1,0 +1,11 @@
+#No Log-files uploaded to Github
+*.log
+
+#dotenv file containing API-keys should not go up on Github
+.env
+
+#Requirements will be added to ReadMefile later
+requirements.txt
+
+#__Pycache__ stays local
+__pycache__

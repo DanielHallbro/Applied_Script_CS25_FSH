@@ -66,7 +66,7 @@ def check_api_keys():
 
 def run_pre_checks(log_file_path):
     # Huvudfunktion för miljökontroll.
-    log("Startar Miljökontroller (Pre-flight checks)...", 'INFO')
+    log("Startar Miljökontroller (Pre-flight checks)...", 'DEBUG')
 
     if not check_internet_connection():
         print(f"  -> Scriptet avslutas. Kontrollera loggfilen ({log_file_path}) för detaljer.")
@@ -77,5 +77,5 @@ def run_pre_checks(log_file_path):
         print(f"  -> Scriptet avslutas. Kontrollera loggfilen ({log_file_path}) för detaljer.")
         return False
 
-    log("Alla Miljökontroller slutfördes framgångsrikt.", 'INFO')
+    log("Alla Miljökontroller slutfördes framgångsrikt.", 'DEBUG')
     return True

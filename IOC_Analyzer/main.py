@@ -1,7 +1,9 @@
 import argparse # Import för att hantera kommandoradsargument i Linux CLI.
-from datetime import datetime # Import för tidsstämpel i startloggen
+from datetime import datetime # Import för tidsstämpel i startloggen.
 import sys
-import os # Import för miljövariabler
+import os # Import för miljövariabler.
+from dotenv import load_dotenv # Import för att ladda .env-filen med API-nycklar.
+load_dotenv() # Laddar API-nycklar från .env-filen.
 
 # Import från den egna logger-modulen modules/logger.py
 from modules.logger import setup_logger, log
@@ -22,7 +24,7 @@ LOG_FILE_PATH = "ioc_analyzer.log" # Loggfilens namn. Information om filens namn
 
 def analyze_ioc(ioc):
     # Analyserar en IOC (IP, URL/Domain) med hjälp av olika API:er.
-    log(f"--- Analys startad för: {ioc} ---", 'INFO') 
+    log(f"--- Analys startad för: {ioc} ---", 'DEBUG') 
 
     ioc_type = get_ioc_type(ioc)
     
@@ -44,7 +46,7 @@ def analyze_ioc(ioc):
         # Använd formatter för att skriva ut snyggt
         formatted_output = format_ip_analysis(api_results, ioc)
         print(formatted_output)
-        log(f"Formaterad analysrapport:\n{formatted_output}", 'INFO') # Säkerställer att logga formaterad output på ett snyggt sätt.
+        log(f"Formaterad analysrapport:\n{formatted_output}", 'DEBUG') # Säkerställer att logga formaterad output på ett snyggt sätt.
 
     elif ioc_type == 'URL' or ioc_type == 'UNKNOWN':
         log(f"IOC-typ: {ioc_type}. Använder VirusTotal för analys.", 'DEBUG')
@@ -54,14 +56,14 @@ def analyze_ioc(ioc):
         
         formatted_output = format_other_analysis(vt_result, ioc)
         print(formatted_output)
-        log(f"Formaterad analysrapport:\n{formatted_output}", 'INFO') # Säkerställer att logga formaterad output på ett snyggt sätt.
+        log(f"Formaterad analysrapport:\n{formatted_output}", 'DEBUG') # Säkerställer att logga formaterad output på ett snyggt sätt.
         
-    log("Analysen slutförd och presenterades.", 'INFO')
+    log("Analysen slutförd och presenterades.", 'DEBUG')
 
 def main():
     # Sätt upp loggern vid programmets start
     setup_logger(LOG_FILE_PATH)
-    log(f"IOC Analyzer v{VERSION} startad ({datetime.now().strftime('%Y-%m-%d %H:%M:%S')})", 'INFO')
+    log(f"IOC Analyzer v{VERSION} startad ({datetime.now().strftime('%Y-%m-%d %H:%M:%S')})", 'DEBUG')
 
 
     if not run_pre_checks(LOG_FILE_PATH):
@@ -98,25 +100,25 @@ def main():
 
     # Feature: Icke-interaktivt läge med target-flagga
     if args.target:
-        log(f"Startar analys i icke-interaktivt läge för: {args.target}", 'INFO') 
+        log(f"Startar analys i icke-interaktivt läge för: {args.target}", 'DEBUG') 
         analyze_ioc(args.target)
     else:
         # Endast om inget target skickas, går vi in i interaktivt läge
-        print("Välkommen till IOC Analyzer v0.2")
+        print("Välkommen till IOC Analyzer v" + VERSION)
     
         while True:
             try:
                 ioc = input("Ange IOC (IP eller URL) att analysera, eller 'exit' för att avsluta: ")
             
                 if ioc.lower() == 'exit':
-                    log("Användaren valde att avsluta.", 'INFO') 
+                    log("Användaren valde att avsluta.", 'DEBUG') 
                     break
                     
                 analyze_ioc(ioc)
                 
             except KeyboardInterrupt:
                 # Hantering av avbrott från användaren t.ex. Ctrl+C
-                log("Användaren avbröt scriptet via Ctrl+C.", 'WARNING')
+                log("Användaren avbröt scriptet via Ctrl+C.", 'DEBUG')
                 print("\nAnalys avbruten av användaren. Avslutar.")
                 break
             except Exception as e:
@@ -126,7 +128,7 @@ def main():
                 break
 
 
-    log("Scriptet avslutades kontrollerat.", 'INFO') 
+    log("Scriptet avslutades kontrollerat.", 'DEBUG') 
 
 if __name__ == "__main__":
     main()

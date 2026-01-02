@@ -18,7 +18,7 @@ def format_ip_analysis(results: list, ioc: str):
         total_engines = sum(stats.values()) # Totala antal motorer (Rough estimate)
         malicious = stats.get('malicious', 0)
         
-        output += f"  > Malicious Detektioner: **{malicious} av {total_engines}**\n"
+        output += f"  > Malicious Detektioner: {malicious} av {total_engines}\n"
         output += f"  > Hotfullt Rykte: {'Ja' if malicious > 0 else 'Nej'}\n"
         output += f"  > Rapport: https://www.virustotal.com/gui/ip-address/{ioc}\n"
     else:
@@ -26,13 +26,13 @@ def format_ip_analysis(results: list, ioc: str):
 
 
     # --- 2. AbuseIPDB Resultat ---
-    output += "\n### 🛡️ AbuseIPDB (Förtroendescore)\n"
+    output += "\n### 🛡️ AbuseIPDB (Community Malicious Score)\n"
     if abuse_data and abuse_data['status'] == 'Success':
         # Vi extraherar Abuse Confidence Score
         score = abuse_data['data'].get('abuseConfidenceScore', 'N/A')
         reports = abuse_data['data'].get('totalReports', 'N/A')
-        
-        output += f"  > Förtroendescore: **{score}%** (Skala 0-100)\n"
+
+        output += f"  > Community Malicious Score: {score}% (Skala 0-100)\n"
         output += f"  > Totala Rapporter: {reports}\n"
         output += f"  > Senaste Rapport: {abuse_data['data'].get('lastReportedAt', 'N/A')}\n"
     elif abuse_data and abuse_data['status'] == 'Skipped':
@@ -44,7 +44,7 @@ def format_ip_analysis(results: list, ioc: str):
     output += "\n### 📍 IPinfo.io (Geolokalisering & Nätverk)\n"
     if ipinfo_data and ipinfo_data['status'] == 'Success':
         data = ipinfo_data['data']
-        output += f"  > Land: **{data.get('country_name', data.get('country', 'N/A'))}** ({data.get('country')})\n"
+        output += f"  > Land: {data.get('country_name', data.get('country', 'N/A'))} ({data.get('country')})\n"
         output += f"  > Stad/Region: {data.get('city', 'N/A')}, {data.get('region', 'N/A')}\n"
         output += f"  > Organisation (ASN): {data.get('org', 'N/A')}\n"
         output += f"  > Hostnamn: {data.get('hostname', 'N/A')}\n"
@@ -63,7 +63,7 @@ def format_other_analysis(result: dict, ioc: str) -> str:
     vt_data = result # Borde vara det enda resultatet
     ioc_type = vt_data.get('ioc_type', 'N/A')
     
-    output += f"### 🦠 VirusTotal ({ioc_type.upper()} Analys)\n"
+    output += f"\n### 🦠 VirusTotal ({ioc_type.upper()} Analys)\n"
     
     if vt_data['status'] == 'Success':
         stats = vt_data['data'].get('last_analysis_stats', {})
