@@ -32,7 +32,7 @@ def check_ip(ip_address: str) -> dict:
             "source": "IPinfo",
             "status": "Success",
             "raw_score": raw_score, 
-            "data": data # Hela Geodatan. Kanske plockar ut specifika fält senare.
+            "data": data # Hela Geodatan.
         }
     
     except requests.exceptions.HTTPError as e:
