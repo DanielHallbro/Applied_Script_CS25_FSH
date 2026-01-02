@@ -16,6 +16,7 @@ from modules.abuseipdb import check_ip as check_abuse_ip
 from modules.ipinfo import check_ip as check_ipinfo_ip
 from modules.formatter import format_ip_analysis
 from modules.formatter import format_other_analysis
+from modules.cache import check_cache, update_cache, save_cache # Importerar cache-modulen(FB1).
 
 VERSION = "0.5" 
 DEVELOPER = "Daniel Hållbro (Student)"
@@ -26,12 +27,30 @@ def analyze_ioc(ioc):
     # Analyserar en IOC (IP, URL/Domain) med hjälp av olika API:er.
     log(f"--- Analys startad för: {ioc} ---", 'DEBUG') 
 
+    cached_data = check_cache(ioc)
+    if cached_data:
+        log("Använder cachad data för presentation.", 'DEBUG')
+        
+        # Bestäm om det är IP eller URL/Hash-presentation
+        ioc_type = get_ioc_type(ioc)
+        
+        if ioc_type == 'IP':
+            formatted_output = format_ip_analysis(cached_data, ioc)
+        else:
+            # För URL/Hash, hämtar vi det första (och enda) resultatet i listan
+            formatted_output = format_other_analysis(cached_data[0], ioc)
+            
+        print(f"\n[CACHAT RESULTAT]")
+        print(formatted_output)
+        log(f"Formaterad analysrapport (CACHAT):\n{formatted_output}", 'DEBUG')
+        log("Analysen slutförd och presenterades (CACHAT).", 'INFO')
+        return # Avsluta funktionen om cachat resultat finns
+
     ioc_type = get_ioc_type(ioc)
-    
     api_results = []
 
     if ioc_type == 'IP':
-        log("IOC-typ: IP-adress. Använder multisource IP-analys.", 'DEBUG')
+        log("IOC-typ: IP-adress. Inget cachat resultat. Använder multisource IP-analys.", 'DEBUG')
         
         # Anrop till alla tre API:er för IP-analys
         vt_result = check_vt_ip(ioc)
@@ -49,7 +68,7 @@ def analyze_ioc(ioc):
         log(f"Formaterad analysrapport:\n{formatted_output}", 'DEBUG') # Säkerställer att logga formaterad output på ett snyggt sätt.
 
     elif ioc_type == 'URL' or ioc_type == 'UNKNOWN':
-        log(f"IOC-typ: {ioc_type}. Använder VirusTotal för analys.", 'DEBUG')
+        log(f"IOC-typ: {ioc_type}. Inget cachat resultat. Använder VirusTotal för analys.", 'DEBUG')
         
         vt_result = check_vt_other(ioc)
         api_results.append(vt_result)
@@ -85,7 +104,7 @@ def main():
     parser.add_argument(
         '-v', '--version', 
         action='version', 
-        version=f'%(prog)s {VERSION} av {DEVELOPER}', 
+        version=f'%(prog)s v{VERSION} av {DEVELOPER}', 
         help="Visar scriptets version och utvecklare."
     )
 
@@ -100,7 +119,7 @@ def main():
 
     # Feature: Icke-interaktivt läge med target-flagga
     if args.target:
-        log(f"Startar analys i icke-interaktivt läge för: {args.target}", 'DEBUG') 
+        log(f"Startar analys i icke-interaktivt läge för: {args.target}", 'INFO') 
         analyze_ioc(args.target)
     else:
         # Endast om inget target skickas, går vi in i interaktivt läge
@@ -130,5 +149,6 @@ def main():
 
     log("Scriptet avslutades kontrollerat.", 'DEBUG') 
 
+    save_cache() # Sparar cachen vid programmets avslutning (FB1).
 if __name__ == "__main__":
     main()
