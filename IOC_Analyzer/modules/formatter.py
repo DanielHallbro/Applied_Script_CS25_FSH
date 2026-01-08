@@ -1,9 +1,10 @@
 import json
 
-def format_ip_analysis(results: list, ioc: str):
+def format_ip_analysis(results: list, ioc: str, is_cached = False) -> str:
     # Formats and presents raw data from VT, AbuseIPDB and IPinfo.
 
-    output += f"\n--- ANALYSIS RESULT FOR {ioc} ---\n"
+    cache_status = "Cached result" if is_cached else ""
+    output = f"\n--- ANALYSIS RESULT FOR {ioc} - {cache_status} ---\n"
     # Uses next() to find the result based on the source
     vt_data = next((r for r in results if r['source'] == 'VirusTotal'), None)
     abuse_data = next((r for r in results if r['source'] == 'AbuseIPDB'), None)
@@ -56,9 +57,10 @@ def format_ip_analysis(results: list, ioc: str):
     output += "\n--- ANALYSIS COMPLETE ---\n"
     return output
 
-def format_other_analysis(result: dict, ioc: str) -> str:
+def format_other_analysis(result: dict, ioc: str, is_cached = False) -> str:
     # Formats and presents analysis for URL and Hash (only VT).
-    output = f"\n--- ANALYSIS RESULT FOR {ioc} ---\n"
+    cache_status = "Cached result" if is_cached else ""
+    output = f"\n--- ANALYSIS RESULT FOR {ioc} ---{cache_status}\n"
     
     vt_data = result # Should be the only result
     ioc_type = vt_data.get('ioc_type', 'N/A')
