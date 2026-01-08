@@ -1,44 +1,44 @@
 import logging
 import sys
 
-# Global variabel för loggern
+# Global variabel for the logger
 logger = None 
 
 def setup_logger(log_file):
-    # Konfigurerar logger för både fil och konsol
+    # Configure logger for both file and console
     global logger
     logger = logging.getLogger('IOC_Analyzer')
     logger.setLevel(logging.DEBUG)
 
-    # Skapa formatter för loggmeddelanden
+    # Create formatter for log messages
     formatter = logging.Formatter('%(asctime)s - %(levelname)s - %(message)s', datefmt='%Y-%m-%d %H:%M:%S')
 
-    # Hanterare för fil
+    # Handler for file
     try:
         file_handler = logging.FileHandler(log_file, mode='a', encoding='utf-8')
         file_handler.setLevel(logging.DEBUG)
         file_handler.setFormatter(formatter)
         logger.addHandler(file_handler)
     except IOError as e:
-        # Ger ett felmeddelande om loggfilen inte kan skapas
-        print(f"[KRITISKT FEL] Kunde inte skapa eller skriva till loggfilen '{log_file}': {e}")
-    
-    # Hanterare för konsol
+        # Print an error message if the log file cannot be created
+        print(f"[CRITICAL ERROR] Could not create or write to log file '{log_file}': {e}")
+
+    # Handler for console
     console_handler = logging.StreamHandler(sys.stdout)
-    console_handler.setLevel(logging.INFO) # Endast INFO och högre till konsol
+    console_handler.setLevel(logging.INFO) # Only INFO and higher to console
     console_formatter = logging.Formatter('[%(levelname)s] %(message)s')
     console_handler.setFormatter(console_formatter)
     logger.addHandler(console_handler)
 
 def log(message, level='INFO'):
-    """En wrapper-funktion för att logga med rätt nivå."""
+    # A wrapper function for logging with the correct level.
     global logger
     if logger is None:
-        # Fallback om loggern inte initierats
+        # Fallback if the logger is not initialized
         print(f"[{level}] {message}")
         return
 
-    # Hanterar loggnivåer
+    # Handle log levels
     if level.upper() == 'DEBUG':
         logger.debug(message)
     elif level.upper() == 'INFO':

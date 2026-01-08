@@ -2,23 +2,22 @@ import os
 from modules.logger import log
 
 def generate_report(output_filename: str, report_content: str):
-    # Skriver den formaterade analysrapporten till en angiven fil i append-läge.
-    # Lägger till en avgränsare för tydlighet mellan analyser.
+    # Writes the formatted analysis report to a specified file in append mode.
     if not output_filename:
-        log("Reporter: Inget filnamn specificerat för rapport. Avbryter.", 'DEBUG')
+        log("Reporter: No filename specified for report. Aborting.", 'DEBUG')
         return
 
     try:
-        # Använd 'a' (Append/Lägg till) för att hantera multipla analyser korrekt
+        # Using 'a' (Append) to handle multiple analyses correctly
         with open(output_filename, 'a', encoding='utf-8') as f: 
             
-            # Lägg till en tydlig avgränsare
-            f.write("\n\n" + "="*20 + f" ANALYS STARTAD: {os.path.basename(output_filename)} " + "="*20 + "\n\n")
+            # Adding a clear separator
+            f.write("\n\n" + "="*20 + f" ANALYSIS STARTED: {os.path.basename(output_filename)} " + "="*20 + "\n\n")
             f.write(report_content)
             
-        log(f"Reporter: Analysrapport tillagd framgångsrikt i: {output_filename}", 'DEBUG')
-        print(f"\n[REPORT] Analysresultat tillagt i: {output_filename}")
-        
+        log(f"Reporter: Analysis report successfully added to: {output_filename}", 'DEBUG')
+        print(f"\n[REPORT] Analysis result added to: {output_filename}")
+
     except Exception as e:
-        log(f"Reporter: Kunde inte skriva rapport till {output_filename}. Fel: {e}", 'ERROR')
-        print(f"\n[FEL] Kunde inte skriva rapport till fil: {output_filename}")
+        log(f"Reporter: Could not write report to {output_filename}. Error: {e}", 'ERROR')
+        print(f"\n[ERROR] Could not write report to file: {output_filename}")

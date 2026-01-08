@@ -1,81 +1,81 @@
-# Modulen hanterar miljökontroller (pre-flight checks) innan huvudanalysen påbörjas.
+# The module handles environment checks (pre-flight checks) before the main analysis begins.
 import os
 import sys
 import socket
 from modules.logger import log
 
 def check_internet_connection():
-    # Kontrollera nätverksstatus genom att försöka nå en pålitlig server.
+    # Check internet connection status by trying to reach a reliable server.
     
-    # Försöker ansluta till Googles DNS-server (8.8.8.8) på port 53 (DNS).
-    # Detta testar både nätverk och DNS-upplösning.
+    # Attempts to connect to Google's DNS server (8.8.8.8) on port 53 (DNS).
+    # This tests both network and DNS resolution.
     REMOTE_SERVER = "8.8.8.8"
     PORT = 53
     TIMEOUT = 3
     
     try:
-        # Försöker skapa anslutning för att testa nätverksstatus
+        # Attempts to create a connection to test network status
         s = socket.create_connection((REMOTE_SERVER, PORT), TIMEOUT)
         s.close()
-        log("Miljökontroll lyckades: Internetanslutning aktiv.", 'DEBUG')
+        log("Environment check succeeded: Internet connection is active.", 'DEBUG')
         return True
     except socket.error:
-        # Fångar anslutningsfel
-        log("Miljökontroll misslyckades: Ingen internetanslutning eller DNS-problem.", 'ERROR')
-        # Felmeddelanden och åtgärdsförslag
-        print(f"\n[FEL] Ingen internetanslutning. Scriptet kan inte nå API:erna.")
-        print("  -> Åtgärd: Kontrollera din nätverksstatus.")
+        # Captures connection errors
+        log("Environment check failed: No internet connection or DNS problem.", 'ERROR')
+        # Error messages and suggested actions
+        print(f"\n[ERROR] No internet connection. The script cannot reach the APIs.")
+        print("  -> Action: Check your network status.")
         return False
     except Exception as e:
-        # Fångar oväntade fel i loggen
-        log(f"Oväntat fel vid nätverkskontroll: {e}", 'ERROR')
+        # Captures unexpected errors in the log
+        log(f"Unexpected error during network check: {e}", 'ERROR')
         return False
 
 
 def check_api_keys():
     
-    # Kontrollera API-nycklar. 
-    # Kräver VirusTotal som minimum, men varnar för de andra.
+    # Check API keys.
+    # Requires VirusTotal as minimum, but warns for others.
     
     vt_key = os.getenv('VT_API_KEY')
     abuse_key = os.getenv('ABUSE_API_KEY')
-    ipinfo_key = os.getenv('IPINFO_API_KEY') # Ändrad till IPINFO 
-    
-    # 1. Kontrollera MINIMUMKRAVET (VirusTotal)
+    ipinfo_key = os.getenv('IPINFO_API_KEY')
+
+    # 1. Check MINIMUM REQUIREMENT (VirusTotal)
     if not vt_key:
-        log("Miljökontroll misslyckades: MINIMUMKRAV (VT_API_KEY) saknas.", 'CRITICAL')
-        print(f"\n[KRITISKT FEL] Scriptet kräver åtminstone VT_API_KEY för att kunna analysera IOC.")
-        print("  -> Åtgärd: Exportera nyckeln i din terminal: export VT_API_KEY=\"DIN_NYCKEL\"")
+        log("Environment check failed: MINIMUM REQUIREMENT (VT_API_KEY) missing.", 'CRITICAL')
+        print(f"\n[CRITICAL ERROR] Script requires VT_API_KEY to analyze IOC.")
+        print("  -> Action: Export the key in your terminal: export VT_API_KEY=\"YOUR_KEY\"")
         return False
-    
-    # 2. Varna om andra nycklar saknas (om scriptet ska fortsätta)
+
+    # 2. Warns if optional keys are missing
     missing_optional = []
     if not abuse_key:
         missing_optional.append('ABUSE_API_KEY')
     if not ipinfo_key: 
-        missing_optional.append('IPINFO_API_KEY') # Ändrad till IPINFO
+        missing_optional.append('IPINFO_API_KEY')
 
     if missing_optional:
-        log(f"VARNING: Följande VALFRIA API-nycklar saknas: {', '.join(missing_optional)}.", 'WARNING')
-        print(f"\n[VARNING] Analys kommer att sakna data från: {', '.join(missing_optional)}.")
-        print("  -> Scriptet fortsätter. Sätt API-nycklarna för fullständig analys.")
+        log(f"WARNING: The following OPTIONAL API keys are missing: {', '.join(missing_optional)}.", 'WARNING')
+        print(f"\n[WARNING] Analysis will be missing data from: {', '.join(missing_optional)}.")
+        print("  -> Script continues. Recommended to set API keys for full analysis.")
     else:
-        log("Miljökontroll lyckades: Alla nödvändiga och valfria API-nycklar finns.", 'DEBUG')
+        log("Environment check succeeded: All required and optional API keys are present.", 'DEBUG')
 
     return True
 
 def run_pre_checks(log_file_path):
-    # Huvudfunktion för miljökontroll.
-    log("Startar Miljökontroller (Pre-flight checks)...", 'DEBUG')
+    # Main function for environment checks.
+    log("Starting Environment Checks (Pre-flight checks)...", 'DEBUG')
 
     if not check_internet_connection():
-        print(f"  -> Scriptet avslutas. Kontrollera loggfilen ({log_file_path}) för detaljer.")
+        print(f"  -> Script terminated. Check the log file ({log_file_path}) for details.")
         return False
         
     if not check_api_keys():
-        # Avslutas här endast om VT_API_KEY saknas. Saknade valfria nycklar varnas bara för.
-        print(f"  -> Scriptet avslutas. Kontrollera loggfilen ({log_file_path}) för detaljer.")
+        # Terminated here only if VT_API_KEY is missing. Missing optional keys are only warned about.
+        print(f"  -> Script terminated. Check the log file ({log_file_path}) for details.")
         return False
 
-    log("Alla Miljökontroller slutfördes framgångsrikt.", 'DEBUG')
+    log("All Environment Checks completed successfully.", 'DEBUG')
     return True

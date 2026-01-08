@@ -2,15 +2,15 @@ import os
 import requests
 from modules.logger import log
 
-ABUSE_API_KEY = os.getenv('ABUSE_API_KEY') # Hämta API-nyckel från miljövariabel. Går att ändra till ren inmatning av nyckel vid behov.
+ABUSE_API_KEY = os.getenv('ABUSE_API_KEY') # Fetch API key from environment variable. Can be changed to raw key input if preferred.
 BASE_URL = "https://api.abuseipdb.com/api/v2/check"
 
 def check_ip(ip_address: str) -> dict:
-    # Hantera AbuseIPDB IP-kontroll.
-    log(f"AbuseIPDB: Startar IP-analys för {ip_address}.", 'DEBUG')
+    # Handle AbuseIPDB IP check.
+    log(f"AbuseIPDB: Starting IP analysis for {ip_address}.", 'DEBUG')
     
     if not ABUSE_API_KEY:
-        log("AbuseIPDB: API-nyckel saknas (valfri). Hoppar över anrop.", 'WARNING')
+        log("AbuseIPDB: API key missing (optional). Skipping call.", 'WARNING')
         return {"source": "AbuseIPDB", "status": "Skipped", "data": "API Key Missing"}
 
     url = f"{BASE_URL}?ipAddress={ip_address}&maxAgeInDays=90&verbose"
@@ -25,21 +25,21 @@ def check_ip(ip_address: str) -> dict:
 
         data = response.json().get('data', {})
         
-        # Hämtar Abuse Score (skala 0-100)
+        # Fetches Abuse Score (scale 0-100)
         abuse_score = data.get('abuseConfidenceScore', 0)
         
-        log(f"AbuseIPDB: Lyckades hämta data. Abuse Score: {abuse_score}", 'DEBUG')
+        log(f"AbuseIPDB: Successfully fetched data. Abuse Score: {abuse_score}", 'DEBUG')
         
         return {
             "source": "AbuseIPDB",
             "status": "Success",
-            "raw_score": abuse_score, # Rådata (0-100)
+            "raw_score": abuse_score, # Raw data (0-100)
             "data": data
         }
     
     except requests.exceptions.HTTPError as e:
-        log(f"AbuseIPDB: HTTP-fel {e.response.status_code} vid anrop för {ip_address}.", 'ERROR')
+        log(f"AbuseIPDB: HTTP error {e.response.status_code} during call for {ip_address}.", 'ERROR')
         return {"source": "AbuseIPDB", "status": f"HTTP Error {e.response.status_code}", "data": None}
     except requests.exceptions.RequestException as e:
-        log(f"AbuseIPDB: Anslutningsfel: {e}", 'ERROR')
+        log(f"AbuseIPDB: Connection error: {e}", 'ERROR')
         return {"source": "AbuseIPDB", "status": "Connection Error", "data": None}

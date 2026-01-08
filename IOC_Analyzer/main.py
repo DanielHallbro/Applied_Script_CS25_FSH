@@ -1,83 +1,83 @@
-import argparse # Import för att hantera kommandoradsargument i Linux CLI.
-from datetime import datetime # Import för tidsstämpel i startloggen.
+import argparse # Import for handling command-line arguments interactively and non-interactively.
+from datetime import datetime # Import for timestamp in the start log.
 import sys
-import os # Import för miljövariabler.
-from dotenv import load_dotenv # Import för att ladda .env-filen med API-nycklar.
-load_dotenv() # Laddar API-nycklar från .env-filen.
+import os # Import for environment variables.
+from dotenv import load_dotenv # Import for loading .env-file with API keys.
+load_dotenv() # Loads API keys from .env-file.
 
-# Import för logger, utils, pre_checks
+# Import logger, utils, pre_checks
 from modules.logger import setup_logger, log
-from modules.utils import get_ioc_type # Importerar utils för IOC-validering.
-from modules.pre_checks import run_pre_checks # Importerar pre_checks för miljökontroller
+from modules.utils import get_ioc_type # Importing utils for IOC-validation.
+from modules.pre_checks import run_pre_checks # Importing pre_checks for environment checks
 
-# Import för API-anrop/cache/formatter/reporter
+# Import API-anrop/cache/formatter/reporter
 from modules.virustotal import check_ip as check_vt_ip, check_url_or_hash as check_vt_other
 from modules.abuseipdb import check_ip as check_abuse_ip
 from modules.ipinfo import check_ip as check_ipinfo_ip
 from modules.formatter import format_ip_analysis, format_other_analysis
-from modules.cache import check_cache, update_cache, save_cache # Importerar cache-modulen (FB1).
-from modules.reporter import generate_report # Importerar reporter-modulen (FB2).
+from modules.cache import check_cache, update_cache, save_cache # Importing cache-modulen (FB1).
+from modules.reporter import generate_report # Importing reporter-modulen (FB2).
 
 VERSION = "0.6" 
 DEVELOPER = "Daniel Hållbro (Student)"
-LOG_FILE_PATH = "ioc_analyzer.log" # Loggfilens namn. Information om filens namn och sökväg ska in i README.
+LOG_FILE_PATH = "ioc_analyzer.log" # Log file name.
 
 
 def analyze_ioc(ioc,report_filename=None):
-    # Analyserar en IOC (IP, URL/Domain) med hjälp av olika API:er.
-    log(f"--- Analys startad för: {ioc} ---", 'DEBUG') 
+    # Analyzes an IOC (IP, URL/Domain) using various APIs.
+    log(f"--- Analysis started for: {ioc} ---", 'DEBUG') 
 
     cached_data = check_cache(ioc)
     if cached_data:
-        log(f"Använder cachad data för presentation.", 'DEBUG')
+        log(f"Using cached data for presentation.", 'DEBUG')
         
-        # Bestäm om det är IP eller URL/Hash-presentation
+        # Determine if it is IP or URL/Hash presentation
         ioc_type = get_ioc_type(ioc)
         
         if ioc_type == 'IP':
             formatted_output = format_ip_analysis(cached_data, ioc)
         else:
-            # För URL/Hash, hämtar vi det första (och enda) resultatet i listan
+            # For URL/Hash, we fetch the first (and only) result in the list
             formatted_output = format_other_analysis(cached_data[0], ioc)
         if report_filename:
             generate_report(report_filename, formatted_output)
         else:
             print(formatted_output)
 
-        log(f"Formaterad analysrapport (från cache):\n{formatted_output}", 'DEBUG')
-        log("Analysen slutförd och presenterades (CACHAT).", 'INFO')
-        return # Avsluta funktionen om cachat resultat finns
+        log(f"Formatted analysis report (from cache):\n{formatted_output}", 'DEBUG') 
+        log("Analysis completed and presented (CACHED).", 'INFO')
+        return # Exit the function if cached result exists
         
     ioc_type = get_ioc_type(ioc)
     api_results = []
 
     if ioc_type == 'IP':
-        log("IOC-typ: IP-adress. Inget cachat resultat. Använder multisource IP-analys.", 'DEBUG')
+        log("IOC Type: IP address. No cached result. Using multisource IP analysis.", 'DEBUG')
         
-        # Anrop till alla tre API:er för IP-analys
+        # Calls to all three APIs for IP analysis
         vt_result = check_vt_ip(ioc)
         abuse_result = check_abuse_ip(ioc)
         ipinfo_result = check_ipinfo_ip(ioc)
 
-        # Samla in alla resultat
+        # Collect all results
         api_results.append(vt_result)
         api_results.append(abuse_result)
         api_results.append(ipinfo_result)
         
-        # Använd formatter för att skriva ut snyggt
+        # Use formatter for neat output
         formatted_output = format_ip_analysis(api_results, ioc)
         if report_filename:
             generate_report(report_filename, formatted_output)
         else:
             print(formatted_output)
 
-        update_cache(ioc, api_results) # Sparar det insamlade resultatet
-        log(f"Sparade analysresultat för {ioc} till cachen.", 'DEBUG')
+        update_cache(ioc, api_results) # Saves the collected result
+        log(f"Saved analysis results for {ioc} to the cache.", 'DEBUG')
 
-        log(f"Formaterad analysrapport:\n{formatted_output}", 'DEBUG') # Säkerställer att logga formaterad output på ett snyggt sätt.
+        log(f"Formatted analysis report:\n{formatted_output}", 'DEBUG') # Ensures that the formatted output is logged neatly.
 
     elif ioc_type == 'URL' or ioc_type == 'UNKNOWN':
-        log(f"IOC-typ: {ioc_type}. Inget cachat resultat. Använder VirusTotal för analys.", 'DEBUG')
+        log(f"IOC Type: {ioc_type}. No cached result. Using VirusTotal for analysis.", 'DEBUG')
         
         vt_result = check_vt_other(ioc)
         api_results.append(vt_result)
@@ -89,92 +89,91 @@ def analyze_ioc(ioc,report_filename=None):
             print(formatted_output)
 
 
-        update_cache(ioc, api_results) # Sparar det insamlade resultatet
-        log(f"Sparade analysresultat för {ioc} till cachen.", 'DEBUG')
+        update_cache(ioc, api_results) # Saves the collected result.
+        log(f"Saved analysis results for {ioc} to the cache.", 'DEBUG')
 
-        log(f"Formaterad analysrapport:\n{formatted_output}", 'DEBUG') # Säkerställer att logga formaterad output på ett snyggt sätt.
+        log(f"Formatted analysis report:\n{formatted_output}", 'DEBUG') # Ensures that the formatted output is logged neatly.
         
-    log("Analysen slutförd och presenterades.", 'DEBUG')
+    log("Analysis completed and presented.", 'DEBUG')
 
 def main():
-    # Sätt upp loggern vid programmets start
+    # Set up the logger at program start
     setup_logger(LOG_FILE_PATH)
-    log(f"IOC Analyzer v{VERSION} startad ({datetime.now().strftime('%Y-%m-%d %H:%M:%S')})", 'DEBUG')
+    log(f"IOC Analyzer v{VERSION} started ({datetime.now().strftime('%Y-%m-%d %H:%M:%S')})", 'DEBUG')
 
 
     if not run_pre_checks(LOG_FILE_PATH):
-        log("Miljökontroller misslyckades. Avslutar kontrollerat.", 'CRITICAL')
-        sys.exit(1) # Viktigt: Avsluta scriptet kontrollerat om VT saknas!
+        log("Environment checks failed. Exiting in a controlled manner.", 'CRITICAL')
+        sys.exit(1) # Important: Exit the script in a controlled manner if VT is missing!
 
-    # Argumentparser för kommandoradsargument
-    # Fundera på att göra beskrivningen mer detaljerad.
+    # Argument parser for command-line arguments
     parser = argparse.ArgumentParser(
-        description="IOC Analyzer Script – Automatiserad hotanalys från VirusTotal och AbuseIPDB samt Geolocation/ASN från IPinfo.io.\n\n"
-                    "Exempel på användning:\n"
+        description="IOC Analyzer Script – Automated threat analysis from VirusTotal and AbuseIPDB, and Geolocation/ASN from IPinfo.io.\n\n"
+                    "Usage Examples:\n"
                     "  python3 main.py -v/--version\n"
                     "  python3 main.py -h/--help/\n"
                     "  python3 main.py -t/--target <IOC>\n"
                     "  python3 main.py -r/--report <FILNAMN>\n"
                     "  python3 main.py -t <IOC> -r <FILNAMN>\n\n",
-        formatter_class=argparse.RawTextHelpFormatter # För snyggare exempel/beskrivning
+        formatter_class=argparse.RawTextHelpFormatter # For neater examples/description
     )    
 
-    # Version flagga -v/--version
+    # Version flag -v/--version
     parser.add_argument(
         '-v', '--version', 
         action='version', 
-        version=f'%(prog)s v{VERSION} av {DEVELOPER}', 
-        help="Visar scriptets version och utvecklare."
+        version=f'%(prog)s v{VERSION} by {DEVELOPER}', 
+        help="Displays the script version and developer."
     )
 
-    # Target flagga -t/--target
+    # Target flag -t/--target
     parser.add_argument(
         '-t', '--target', 
         type=str,
-        help="-t eller --target för att specificera en IOC (IP eller URL) direkt från kommandoraden. Scriptet körs i icke-interaktivt läge."
+        help="-t or --target to specify an IOC (IP or URL/Hash) directly from the command line. The script runs in non-interactive mode."
     )
 
-    # Rapport flagga -r/--report
+    # Report flag -r/--report
     parser.add_argument(
         '-r', '--report',
         type=str,
-        help="-r eller --report för att specificera en fil att skriva analysrapporten till (exempelvis rapport.txt)."
+        help="-r or --report to specify a file to write the analysis report to (for example 'report.txt')."
     )
 
     args = parser.parse_args()
 
-    # Icke-interaktivt läge med target-flagga
+    # Non-interactive mode with target flag
     if args.target:
-        log(f"Startar analys i icke-interaktivt läge för: {args.target}", 'INFO') 
+        log(f"Starting analysis in non-interactive mode for: {args.target}", 'INFO') 
         analyze_ioc(args.target, args.report)
     else:
-        # Endast om inget target skickas, går vi in i interaktivt läge
-        print("Välkommen till IOC Analyzer v" + VERSION)
+        # Only if no target is provided, we go into interactive mode
+        print("Welcome to IOC Analyzer v" + VERSION)
     
         while True:
             try:
-                ioc = input("Ange IOC (IP eller URL) att analysera, eller 'exit' för att avsluta: ")
+                ioc = input("Enter IOC (IP or URL/Hash) to analyze, or 'exit' to quit: ")
             
                 if ioc.lower() == 'exit':
-                    log("Användaren valde att avsluta.", 'DEBUG') 
+                    log("User chose to exit.", 'DEBUG') 
                     break
                     
                 analyze_ioc(ioc, args.report)
                 
             except KeyboardInterrupt:
-                # Hantering av avbrott från användaren t.ex. Ctrl+C
-                log("Användaren avbröt scriptet via Ctrl+C.", 'DEBUG')
-                print("\nAnalys avbruten av användaren. Avslutar.")
+                # Handling of keyboard interruption from the user e.g. Ctrl+C(Linux/macOS)
+                log("User interrupted the script via keyboard interrupt.", 'DEBUG')
+                print("\nAnalysis interrupted by the user. Exiting.")
                 break
             except Exception as e:
-                # Hantering av oväntade fel
-                log(f"Ett oväntat fel uppstod i main loop: {e}", 'CRITICAL')
-                print(f"\n[KRITISKT FEL] Ett oväntat fel uppstod. Kontrollera loggfilen ({LOG_FILE_PATH}).")
+                # Handling of unexpected errors
+                log(f"An unexpected error occurred in main loop: {e}", 'CRITICAL')
+                print(f"\n[CRITICAL ERROR] An unexpected error occurred. Check the log file ({LOG_FILE_PATH}).")
                 break
 
 
-    log("Scriptet avslutades kontrollerat.", 'DEBUG') 
+    log("Script exited in a controlled manner.", 'DEBUG')
 
-    save_cache() # Sparar cachen vid programmets avslutning (FB1).
+    save_cache() # Saves the cache at program termination (FB1).
 if __name__ == "__main__":
     main()

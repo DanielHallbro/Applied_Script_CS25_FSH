@@ -5,10 +5,10 @@ from datetime import datetime, timedelta
 from modules.logger import log
 
 CACHE_FILE = "ioc_cache.json"
-CACHE_EXPIRY_DAYS = 1 # IOC:er cachas i 1 dag. Kan justeras vid behov.
+CACHE_EXPIRY_DAYS = 1 # IOCs are cached for 1 day. Can be adjusted if needed.
 
 def load_cache() -> dict:
-    # Laddar upp befintlig cache från disk. Returnerar en tom dictionary om filen saknas/är korrupt.
+    # Loads existing cache from disk. Returns an empty dictionary if the file is missing/corrupt.
     if not os.path.exists(CACHE_FILE):
         return {}
         
@@ -16,44 +16,44 @@ def load_cache() -> dict:
         with open(CACHE_FILE, 'r') as f:
             return json.load(f)
     except json.JSONDecodeError:
-        log(f"Cache: Varning! {CACHE_FILE} är korrupt och återskapas.", 'WARNING')
+        log(f"Cache: Warning! {CACHE_FILE} is corrupt and will be recreated.", 'WARNING')
         return {}
     except Exception as e:
-        log(f"Cache: Ett oväntat fel uppstod vid laddning: {e}", 'ERROR')
+        log(f"Cache: An unexpected error occurred during loading: {e}", 'ERROR')
         return {}
 
-# Cache-data laddas och sparas globalt för prestanda
+# Cache data is loaded and stored globally for performance
 IOC_CACHE = load_cache()
 
 def save_cache():
-    # Sparar cache-data till disk.
+    # Saves cache data to disk.
     try:
         with open(CACHE_FILE, 'w') as f:
             json.dump(IOC_CACHE, f, indent=4)
     except Exception as e:
-        log(f"Cache: Kunde inte spara cache-filen: {e}", 'ERROR')
+        log(f"Cache: Could not save cache file: {e}", 'ERROR')
 
 
 def check_cache(ioc: str) -> list | None:
-    # Kontrollerar om en IOC finns i cachen och är giltig. Returnerar resultat om giltig.
+    # Checks if an IOC exists in the cache and is valid. Returns result if valid.
     if ioc not in IOC_CACHE:
-        log(f"Cache: Inget resultat för {ioc}.", 'DEBUG')
+        log(f"Cache: No result for {ioc}.", 'DEBUG')
         return None
 
     entry = IOC_CACHE[ioc]
     cache_time = datetime.fromisoformat(entry['timestamp'])
-    
-    # Kontrollera utgångsdatum
+
+    # Check expiry date
     if datetime.now() > cache_time + timedelta(days=CACHE_EXPIRY_DAYS):
-        log(f"Cache: Inget resultat för {ioc}. Resultatet har gått ut.", 'INFO')
-        del IOC_CACHE[ioc] # Ta bort ogiltig post
+        log(f"Cache: No result for {ioc}. The result has expired.", 'INFO')
+        del IOC_CACHE[ioc] # Remove invalid entry
         return None
 
-    log(f"Cache: Resultat finns för {ioc}. Använder cachat resultat.", 'INFO')
+    log(f"Cache: Result found for {ioc}. Using cached result.", 'INFO')
     return entry['results']
 
 def update_cache(ioc: str, api_results: list):
-    # Sparar ett nytt API-resultat till cachen och sparar filen.
+    # Saves a new API result to the cache and saves the file.
     IOC_CACHE[ioc] = {
         "timestamp": datetime.now().isoformat(),
         "results": api_results

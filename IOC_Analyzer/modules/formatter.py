@@ -1,92 +1,92 @@
 import json
 
 def format_ip_analysis(results: list, ioc: str):
-    # Formaterar och presenterar rådata vid IP-sökning från VT, AbuseIPDB och IPinfo.
-    # Utför ingen aggregering av riskpoäng.
+    # Formats and presents raw data from VT, AbuseIPDB and IPinfo.
 
-    output = f"\n--- ANALYSRESULTAT FÖR {ioc} ---\n"
-    # Använder next() för att hitta resultatet baserat på källan
+    output += f"\n--- ANALYSIS RESULT FOR {ioc} ---\n"
+    # Uses next() to find the result based on the source
     vt_data = next((r for r in results if r['source'] == 'VirusTotal'), None)
     abuse_data = next((r for r in results if r['source'] == 'AbuseIPDB'), None)
     ipinfo_data = next((r for r in results if r['source'] == 'IPinfo'), None)
 
-    # --- 1. VirusTotal Resultat ---
-    output += "\n### 🦠 VirusTotal (Hotrykte)\n"
+    # --- 1. VirusTotal Result ---
+    output += "\n### 🦠 VirusTotal (Threat Reputation)\n"
     if vt_data and vt_data['status'] == 'Success':
-        # Vi extraherar nyckeldata direkt från VT
+        # We extract key data directly from VT
         stats = vt_data['data'].get('last_analysis_stats', {})
-        total_engines = sum(stats.values()) # Totala antal motorer (Rough estimate)
+        total_engines = sum(stats.values()) # Total number of engines (Rough estimate)
         malicious = stats.get('malicious', 0)
         
-        output += f"  > Malicious Detektioner: {malicious} av {total_engines}\n"
-        output += f"  > Hotfullt Rykte: {'Ja' if malicious > 0 else 'Nej'}\n"
-        output += f"  > Rapport: https://www.virustotal.com/gui/ip-address/{ioc}\n"
+        output += f"  > Malicious Detections: {malicious} of {total_engines}\n"
+        output += f"  > Threat Reputation: {'Yes' if malicious > 0 else 'No'}\n"
+        output += f"  > Report: https://www.virustotal.com/gui/ip-address/{ioc}\n"
     else:
-        output += f"  > Status: {vt_data['status'] if vt_data else 'Misslyckades'}\n"
+        output += f"  > Status: {vt_data['status'] if vt_data else 'Failed'}\n"
 
 
-    # --- 2. AbuseIPDB Resultat ---
+    # --- 2. AbuseIPDB Result ---
     output += "\n### 🛡️ AbuseIPDB (Community Malicious Score)\n"
     if abuse_data and abuse_data['status'] == 'Success':
-        # Vi extraherar Abuse Confidence Score
+        # We extract Abuse Confidence Score
         score = abuse_data['data'].get('abuseConfidenceScore', 'N/A')
         reports = abuse_data['data'].get('totalReports', 'N/A')
 
-        output += f"  > Community Malicious Score: {score}% (Skala 0-100)\n"
-        output += f"  > Totala Rapporter: {reports}\n"
-        output += f"  > Senaste Rapport: {abuse_data['data'].get('lastReportedAt', 'N/A')}\n"
+        output += f"  > Community Malicious Score: {score}% (Scale 0-100)\n"
+        output += f"  > Total Reports: {reports}\n"
+        output += f"  > Latest Report: {abuse_data['data'].get('lastReportedAt', 'N/A')}\n"
     elif abuse_data and abuse_data['status'] == 'Skipped':
-        output += "  > **VARNING:** Skippades. API-nyckel (ABUSE_API_KEY) saknas.\n"
+        output += "  > **WARNING:** Skipped. API key (ABUSE_API_KEY) missing.\n"
     else:
-        output += f"  > Status: {abuse_data['status'] if abuse_data else 'Misslyckades'}\n"
+        output += f"  > Status: {abuse_data['status'] if abuse_data else 'Failed'}\n"
 
-    # --- 3. IPinfo.io Resultat (Kontextuell Data) ---
-    output += "\n### 📍 IPinfo.io (Geolokalisering & Nätverk)\n"
+
+    # --- 3. IPinfo.io Result (Contextual Data) ---
+    output += "\n### 📍 IPinfo.io (Geolocation & Network)\n"
     if ipinfo_data and ipinfo_data['status'] == 'Success':
         data = ipinfo_data['data']
-        output += f"  > Land: {data.get('country_name', data.get('country', 'N/A'))} ({data.get('country')})\n"
-        output += f"  > Stad/Region: {data.get('city', 'N/A')}, {data.get('region', 'N/A')}\n"
+        output += f"  > Country: {data.get('country_name', data.get('country', 'N/A'))} ({data.get('country')})\n"
+        output += f"  > City/Region: {data.get('city', 'N/A')}, {data.get('region', 'N/A')}\n"
         output += f"  > Organisation (ASN): {data.get('org', 'N/A')}\n"
-        output += f"  > Hostnamn: {data.get('hostname', 'N/A')}\n"
+        output += f"  > Hostname: {data.get('hostname', 'N/A')}\n"
     elif ipinfo_data and ipinfo_data['status'] == 'Skipped':
-        output += "  > **VARNING:** Skippades. API-nyckel (IPINFO_API_KEY) saknas.\n"
+        output += "  > **WARNING:** Skipped. API key (IPINFO_API_KEY) missing.\n"
     else:
-        output += f"  > Status: {ipinfo_data['status'] if ipinfo_data else 'Misslyckades'}\n"
+        output += f"  > Status: {ipinfo_data['status'] if ipinfo_data else 'Failed'}\n"
 
-    output += "\n--- ANALYS SLUTFÖRD ---\n"
+    output += "\n--- ANALYSIS COMPLETE ---\n"
     return output
 
 def format_other_analysis(result: dict, ioc: str) -> str:
-    # Formaterar och presenterar analys för URL och Hash (endast VT).
-    output = f"\n--- ANALYSRESULTAT FÖR {ioc} ---\n"
+    # Formats and presents analysis for URL and Hash (only VT).
+    output = f"\n--- ANALYSIS RESULT FOR {ioc} ---\n"
     
-    vt_data = result # Borde vara det enda resultatet
+    vt_data = result # Should be the only result
     ioc_type = vt_data.get('ioc_type', 'N/A')
     
-    output += f"\n### 🦠 VirusTotal ({ioc_type.upper()} Analys)\n"
+    output += f"\n### 🦠 VirusTotal ({ioc_type.upper()} Analysis)\n"
     
     if vt_data['status'] == 'Success':
         stats = vt_data['data'].get('last_analysis_stats', {})
         total_engines = sum(stats.values())
         malicious = stats.get('malicious', 0)
         
-        output += f"  > IOC Typ: **{ioc_type.upper()}**\n"
-        output += f"  > Malicious Detektioner: **{malicious} av {total_engines}**\n"
-        output += f"  > Hotfullt Rykte: {'Ja' if malicious > 0 else 'Nej'}\n"
+        output += f"  > IOC Type: **{ioc_type.upper()}**\n"
+        output += f"  > Malicious Detections: **{malicious} of {total_engines}**\n"
+        output += f"  > Threat Reputation: {'Yes' if malicious > 0 else 'No'}\n"
         
-        # Sätter rätt rapport-URL beroende på typ
+        # Sets the correct report URL depending on type
         if ioc_type == 'hash':
-            output += f"  > Rapport: https://www.virustotal.com/gui/file/{ioc}\n"
+            output += f"  > Report: https://www.virustotal.com/gui/file/{ioc}\n"
         else:
-            # För URL, byt bort protokoll för säkrare länk.
+            # For URL, remove protocol for safer link.
             output_ioc = ioc.replace('http://', '').replace('https://', '')
-            output += f"  > Rapport: https://www.virustotal.com/gui/{ioc_type}/{output_ioc}\n"
+            output += f"  > Report: https://www.virustotal.com/gui/{ioc_type}/{output_ioc}\n"
         
     elif vt_data['status'] == 'Not Found':
-         output += f"  > **Resultat:** Inga rapporter hittades för denna {ioc_type}.\n"
+         output += f"  > Result: No reports found for this {ioc_type}.\n"
          
     else:
         output += f"  > Status: {vt_data['status']}\n"
         
-    output += "\n--- ANALYS SLUTFÖRD ---\n"
+    output += "\n--- ANALYSIS COMPLETE ---\n"
     return output
