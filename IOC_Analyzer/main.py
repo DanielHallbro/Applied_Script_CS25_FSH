@@ -29,7 +29,7 @@ def analyze_ioc(ioc,report_filename=None):
 
     cached_data = check_cache(ioc)
     if cached_data:
-        log(f"Använder cachad data för presentation.", 'INFO')
+        log(f"Använder cachad data för presentation.", 'DEBUG')
         
         # Bestäm om det är IP eller URL/Hash-presentation
         ioc_type = get_ioc_type(ioc)
@@ -42,10 +42,9 @@ def analyze_ioc(ioc,report_filename=None):
         if report_filename:
             generate_report(report_filename, formatted_output)
         else:
-            print(f"\n[CACHAT RESULTAT]")
             print(formatted_output)
 
-        log(f"Formaterad analysrapport (från cache):\n{formatted_output}", 'INFO')
+        log(f"Formaterad analysrapport (från cache):\n{formatted_output}", 'DEBUG')
         log("Analysen slutförd och presenterades (CACHAT).", 'INFO')
         return # Avsluta funktionen om cachat resultat finns
         
@@ -72,6 +71,9 @@ def analyze_ioc(ioc,report_filename=None):
         else:
             print(formatted_output)
 
+        update_cache(ioc, api_results) # Sparar det insamlade resultatet
+        log(f"Sparade analysresultat för {ioc} till cachen.", 'DEBUG')
+
         log(f"Formaterad analysrapport:\n{formatted_output}", 'DEBUG') # Säkerställer att logga formaterad output på ett snyggt sätt.
 
     elif ioc_type == 'URL' or ioc_type == 'UNKNOWN':
@@ -85,6 +87,10 @@ def analyze_ioc(ioc,report_filename=None):
             generate_report(report_filename, formatted_output)
         else:
             print(formatted_output)
+
+
+        update_cache(ioc, api_results) # Sparar det insamlade resultatet
+        log(f"Sparade analysresultat för {ioc} till cachen.", 'DEBUG')
 
         log(f"Formaterad analysrapport:\n{formatted_output}", 'DEBUG') # Säkerställer att logga formaterad output på ett snyggt sätt.
         
