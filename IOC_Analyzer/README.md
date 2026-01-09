@@ -2,16 +2,31 @@
     <img src="images/IOC_Analyzer_transp.png" alt="IOC Analyzer Logotyp" width="500"/>
 </div>
 
-# IOC Analyzer (Indicator of Compromise Analyzer)
+# IOC Analyzer
 
 **Version:** 1.0.0
+
 **Developer:** Daniel Hållbro (Student)
 
 A Python script designed to automatically analyze Indicators of Compromise (IOCs) such as IP addresses, URLs, and hashes. The tool aggregates data from multiple sources (VirusTotal, AbuseIPDB, IPinfo) to provide a quick and comprehensive threat overview.
 
 ---
 
-## 🚀 Features
+## Table of Contents
+
+* [IOC Analyzer](#ioc-analyzer)
+* [Features](#features)
+* [Requirements](#requirements)
+* [Configuration](#configuration)
+* [API Key Acquisition](#api-key-acquisition)
+* [Usage](#usage)
+* [Project Structure](#project-structure)
+* [Security Note](#security-note)
+* [Contributing](#contributing)
+
+---
+
+## Features
 
 * **Multisource Analysis:** Integrates data from VirusTotal, AbuseIPDB, and IPinfo.
 * **IP Analysis:** Retrieves threat reputation, Abuse Score, and geolocation/ASN data.
@@ -21,7 +36,10 @@ A Python script designed to automatically analyze Indicators of Compromise (IOCs
 * **Reporting:** Ability to output analysis results to a dedicated report file.
 * **Multiple platform usage:** Can be run on Linux, Windows and macOS systems.
 
-## 🛠️ Requirements
+<small>[To the top](#ioc-analyzer)</small>
+---
+
+## Requirements
 
 * Python 3.x
 * The libraries specified in `requirements.txt`: `requests`, `python-dotenv`.
@@ -53,9 +71,10 @@ The standard and most reliable way to install the required dependencies is by us
     pip install -r requirements.txt
     ```
 
+<small>[To the top](#ioc-analyzer)</small>
 ---
 
-## 🔑 Configuration
+## Configuration
 
 The tool requires API keys (tokens) to operate. These should be stored in a separate environment file (`.env`) for security.
 
@@ -74,9 +93,44 @@ The tool requires API keys (tokens) to operate. These should be stored in a sepa
     IPINFO_API_KEY='your_ipinfo_api_key'
     ```
 
+<small>[To the top](#ioc-analyzer)</small>
 ---
 
-## 💡 Usage
+## API Key Acquisition
+
+This tool requires API keys from the following three services to function correctly. All services offer a free/community tier suitable for typical usage.
+
+### 1. VirusTotal (VT)
+
+* **Service:** Provides reputation scores and detailed context for file hashes, domains, IPs, and URLs.
+* **Acquisition:**
+    1.  Create an account on the official VirusTotal website.
+    2.  Navigate to **API Key** option in the dropdown menu (top right corner of your browser).
+    3.  Locate and copy your **API Key**.
+
+### 2. AbuseIPDB
+
+* **Service:** Used to report and check the abuse confidence score for public IP addresses.
+* **Acquisition:**
+    1.  Register an account on the AbuseIPDB website.
+    2.  Go to the **API** section in your dashboard.
+    3.  Generate and copy your personal **API Key**.
+
+### 3. IPinfo
+
+* **Service:** Provides geolocation, hosting provider, and other critical metadata for IP addresses.
+* **Acquisition:**
+    1.  Sign up for an account on the IPinfo website.
+    2.  Access your **Dashboard** or **Account** settings.
+    3.  Copy the **Access Token** (which serves as your API Key).
+
+
+Once you have acquired these three keys, place them in the appropriate environment variables in your **`.env`** file, as detailed in the **Configuration** section.
+
+<small>[To the top](#ioc-analyzer)</small>
+---
+
+## Usage
 
 The script can be run in two modes: interactive (default) and non-interactive (CLI).
 
@@ -120,9 +174,10 @@ python3 main.py -r <Report_file.txt> -t <IOC_To_Analyze>
 
 <img src="images/Non-Interactive_Report-file.png" alt="Non-Interactive with report file output" width="300"/>
 
+<small>[To the top](#ioc-analyzer)</small>
 ---
 
-## 📂 Project Structure
+## Project Structure
 
 #### To clearly illustrate where files are located, the project follows this structure:
 
@@ -146,16 +201,18 @@ IOC_Analyzer/
     └── utils.py:       Contains utility functions used across multiple modules, primarily for input validation and classification.
 ```
 
+<small>[To the top](#ioc-analyzer)</small>
 ---
 
-## 🛡️ Security Note
+## Security Note
 
 * **API Keys:** Ensure your `.env` file containing API keys is never committed or pushed to a public repository. It is included in the `.gitignore` file for your safety.
 * **IOCs:** Exercise caution when submitting active Indicators of Compromise (URLs, IPs) to external services.
 
+<small>[To the top](#ioc-analyzer)</small>
 ---
 
-## 🤝 Contributing
+## Contributing
 
 I gladly welcome contributions and ideas! If you have suggestions or want to report a bug, please follow these steps:
 
@@ -165,4 +222,5 @@ I gladly welcome contributions and ideas! If you have suggestions or want to rep
 4.  Push to the branch (`git push origin feature/AmazingFeature`).
 5.  Open a Pull Request.
 
+<small>[To the top](#ioc-analyzer)</small>
 ---
