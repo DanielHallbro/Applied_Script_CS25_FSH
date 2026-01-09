@@ -82,6 +82,10 @@ def analyze_ioc(ioc,report_filename=None):
         vt_result = check_vt_other(ioc)
         api_results.append(vt_result)
         
+        if ioc_type == 'UNKNOWN':
+            # Displays a warning directly to the user if the type could not be determined
+            log("[WARNING] IOC type could not be determined. Assumed to be URL/Hash and sent to VirusTotal.", 'WARNING')
+
         formatted_output = format_other_analysis(vt_result, ioc)
         if report_filename:
             generate_report(report_filename, formatted_output)

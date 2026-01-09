@@ -45,7 +45,8 @@ def check_api_keys():
     if not vt_key:
         log("Environment check failed: MINIMUM REQUIREMENT (VT_API_KEY) missing.", 'CRITICAL')
         print(f"\n[CRITICAL ERROR] Script requires VT_API_KEY to analyze IOC.")
-        print("  -> Action: Export the key in your terminal: export VT_API_KEY=\"YOUR_KEY\"")
+        print("  -> Action: Add the key to the .env file (recommended) or export it in the terminal.\n" \
+        "     Format: VT_API_KEY='your_virustotal_key'")
         return False
 
     # 2. Warns if optional keys are missing
