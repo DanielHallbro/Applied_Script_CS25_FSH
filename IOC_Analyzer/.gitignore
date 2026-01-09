@@ -10,6 +10,4 @@ __pycache__
 #Cache-file (FB1) stays local
 ioc_cache.json
 
-#Ignoring .txt files for now
-*.txt
 
