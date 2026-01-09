@@ -18,7 +18,7 @@ from modules.formatter import format_ip_analysis, format_other_analysis
 from modules.cache import check_cache, update_cache, save_cache # Importing cache-modulen (FB1).
 from modules.reporter import generate_report # Importing reporter-modulen (FB2).
 
-VERSION = "0.6" 
+VERSION = "1.0.0" 
 DEVELOPER = "Daniel Hållbro (Student)"
 LOG_FILE_PATH = "ioc_analyzer.log" # Log file name.
 

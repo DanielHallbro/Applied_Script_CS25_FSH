@@ -12,3 +12,6 @@ ioc_cache.json
 
 #Ignoring .txt files for now
 *.txt
+
+#Ignoring Images folder. Only used to store images for README.md
+images/
