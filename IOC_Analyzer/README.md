@@ -16,6 +16,7 @@ A Python script designed to automatically analyze Indicators of Compromise (IOCs
 
 * [IOC Analyzer](#ioc-analyzer)
 * [Features](#features)
+* [Roadmap](#roadmap)
 * [Requirements](#requirements)
 * [Configuration](#configuration)
 * [API Key Acquisition](#api-key-acquisition)
@@ -35,6 +36,13 @@ A Python script designed to automatically analyze Indicators of Compromise (IOCs
 * **Operating Modes:** Supports interactive mode and non-interactive CLI mode.
 * **Reporting:** Ability to output analysis results to a dedicated report file.
 * **Multiple platform usage:** Can be run on Linux, Windows and macOS systems.
+
+<small>[To the top](#ioc-analyzer)</small>
+---
+
+## Roadmap
+
+<img src="images/Roadmap.jpg" alt="Interactive use w/o flag" width="800"/>
 
 <small>[To the top](#ioc-analyzer)</small>
 ---
