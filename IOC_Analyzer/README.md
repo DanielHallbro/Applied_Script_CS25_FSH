@@ -174,6 +174,14 @@ python3 main.py -r <Report_file.txt> -t <IOC_To_Analyze>
 
 <img src="images/Non-Interactive_Report-file.png" alt="Non-Interactive with report file output" width="300"/>
 
+---
+
+### Test run of v1.0.0 @youtube
+
+<div align="center">
+  <iframe width="480" height="270" src="https://www.youtube.com/embed/ZMp0mXDKUuo?si=Lr-m2ub8cg7W3fuQ" frameborder="0" allowfullscreen></iframe>
+</div>
+
 <small>[To the top](#ioc-analyzer)</small>
 ---
 
