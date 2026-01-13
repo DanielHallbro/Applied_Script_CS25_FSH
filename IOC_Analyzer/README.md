@@ -186,8 +186,8 @@ python3 main.py -r <Report_file.txt> -t <IOC_To_Analyze>
 
 ### Test run of v1.0.0 @youtube
 
-<a href="https://www.youtube.com/watch?v=ZMp0mXDKUuo">
-  <img src="https://img.youtube.com/vi/ZMp0mXDKUuo/0.jpg" alt="Video demonstration av IOC_Analyzer" width="480"/>
+<a href="https://www.youtube.com/watch?v=BN5-2iMqi4c">
+  <img src="https://img.youtube.com/vi/BN5-2iMqi4c/0.jpg" alt="Video demonstration av IOC_Analyzer" width="480"/>
 </a>
 
 <small>[To the top](#ioc-analyzer)</small>
