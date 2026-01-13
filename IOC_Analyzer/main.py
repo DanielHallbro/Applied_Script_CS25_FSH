@@ -27,13 +27,20 @@ def analyze_ioc(ioc,report_filename=None):
     # Analyzes an IOC (IP, URL/Domain) using various APIs.
     log(f"--- Analysis started for: {ioc} ---", 'DEBUG') 
 
+    # Strict type determination
+    ioc_type = get_ioc_type(ioc)
+
+    if ioc_type is None:
+        # If utils.py validation fails.
+        log(f"Validation failed for input: {ioc}", 'WARNING')
+        print(f"\n[ERROR] '{ioc}' is not a valid format.")
+        print("-> Allowed formats: IPv4, Domain/URL, or Hash (MD5/SHA1/SHA256).")
+        return # Exit the function if invalid IOC
+
     cached_data = check_cache(ioc)
     if cached_data:
         log(f"Using cached data for presentation.", 'DEBUG')
-        
-        # Determine if it is IP or URL/Hash presentation
-        ioc_type = get_ioc_type(ioc)
-        
+                
         if ioc_type == 'IP':
             formatted_output = format_ip_analysis(cached_data, ioc)
         else:
@@ -76,12 +83,13 @@ def analyze_ioc(ioc,report_filename=None):
 
         log(f"Formatted analysis report:\n{formatted_output}", 'DEBUG') # Ensures that the formatted output is logged neatly.
 
-    elif ioc_type == 'URL' or ioc_type == 'UNKNOWN':
+    elif ioc_type == 'URL' or ioc_type == 'HASH':
         log(f"IOC Type: {ioc_type}. No cached result. Using VirusTotal for analysis.", 'DEBUG')
         
         vt_result = check_vt_other(ioc)
         api_results.append(vt_result)
-        
+        formatted_output = format_other_analysis(vt_result, ioc)
+
         if ioc_type == 'UNKNOWN':
             # Displays a warning directly to the user if the type could not be determined
             log("[WARNING] IOC type could not be determined. Assumed to be URL/Hash and sent to VirusTotal.", 'WARNING')
@@ -156,13 +164,22 @@ def main():
     
         while True:
             try:
-                ioc = input("Enter IOC (IP or URL/Hash) to analyze, or 'exit' to quit: ")
-            
-                if ioc.lower() == 'exit':
+                raw_input = input("\nEnter IOC (IP / Domain / Hash) or 'exit': ")
+                
+                if raw_input.lower() == 'exit':
                     log("User chose to exit.", 'DEBUG') 
                     break
-                    
-                analyze_ioc(ioc, args.report)
+
+                ioc_type = get_ioc_type(raw_input)
+
+                if ioc_type is None:
+                    # Strict validation failed
+                    log(f"Invalid IOC format entered: {raw_input}", 'WARNING')
+                    print("[Error]: Invalid input format.")
+                    print("Please enter a valid IPv4, Domain (google.com), or Hash (MD5/SHA256).")
+                    continue # Jump back to input prompt
+
+                analyze_ioc(raw_input.strip(), args.report)
                 
             except KeyboardInterrupt:
                 # Handling of keyboard interruption from the user e.g. Ctrl+C(Linux/macOS)
