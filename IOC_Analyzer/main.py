@@ -27,6 +27,8 @@ def analyze_ioc(ioc,report_filename=None):
     # Analyzes an IOC (IP, URL/Domain) using various APIs.
     log(f"--- Analysis started for: {ioc} ---", 'DEBUG') 
 
+    ioc = ioc.strip().lower()  # Clean whitespace and make lowercase for VirusTotal Hash consistency.
+
     # Strict type determination
     ioc_type = get_ioc_type(ioc)
 
@@ -85,14 +87,10 @@ def analyze_ioc(ioc,report_filename=None):
 
     elif ioc_type == 'URL' or ioc_type == 'HASH':
         log(f"IOC Type: {ioc_type}. No cached result. Using VirusTotal for analysis.", 'DEBUG')
-        
-        vt_result = check_vt_other(ioc)
+
+        vt_result = check_vt_other(ioc, ioc_type)
         api_results.append(vt_result)
         formatted_output = format_other_analysis(vt_result, ioc)
-
-        if ioc_type == 'UNKNOWN':
-            # Displays a warning directly to the user if the type could not be determined
-            log("[WARNING] IOC type could not be determined. Assumed to be URL/Hash and sent to VirusTotal.", 'WARNING')
 
         formatted_output = format_other_analysis(vt_result, ioc)
         if report_filename:
@@ -144,7 +142,7 @@ def main():
         type=str,
         help="-t or --target to specify an IOC (IP or URL/Hash) directly from the command line. The script runs in non-interactive mode."
     )
-
+    
     # Report flag -r/--report
     parser.add_argument(
         '-r', '--report',

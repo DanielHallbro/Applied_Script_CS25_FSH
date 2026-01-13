@@ -65,21 +65,27 @@ def _get_vt_endpoint(ioc: str) -> tuple[str, str]:
     return f"{BASE_URL}/urls/{encoded_url}", "url"
 
 
-def check_url_or_hash(ioc: str) -> dict:
-    # Handles VirusTotal analysis for URL or Hash.
-    
-    endpoint, ioc_type_friendly = _get_vt_endpoint(ioc)
-    log(f"VT: Starting analysis for {ioc_type_friendly} ({ioc}).", 'DEBUG')
+def check_url_or_hash(ioc: str, ioc_type: str) -> dict:
+    # Handles VirusTotal URL or Hash check.
+    log(f"VT: Starting {ioc_type} analysis for {ioc}.", 'DEBUG')
 
-    # Pre flight check should catch this before.
-    if not VT_API_KEY:
-        log("VT: API key missing (should be caught by pre-checks). Aborting call.", 'ERROR')
-        return {"source": "VirusTotal (Other)", "status": "Error", "data": "API Key Missing"}
+    ioc_type = ioc_type.upper() # Make sure type is uppercase for consistency.
+
+    # Decides endpoint and type
+    if ioc_type == 'HASH':
+        # För hashar används /files/
+        endpoint = f"{BASE_URL}/files/{ioc}"
+    else:
+        # För URL:er måste de Base64-kodas enligt VT:s krav
+        url_id = base64.urlsafe_b64encode(ioc.encode()).decode().strip("=")
+        endpoint = f"{BASE_URL}/urls/{url_id}"
 
     headers = {
         "x-apikey": VT_API_KEY,
         "accept": "application/json"
     }
+    
+    ioc_type_friendly = "Hash" if ioc_type == 'HASH' else "URL"
 
     try:
         response = requests.get(endpoint, headers=headers, timeout=10)

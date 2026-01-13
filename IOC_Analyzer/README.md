@@ -31,10 +31,11 @@ A Python script designed to automatically analyze Indicators of Compromise (IOCs
 
 * **Multisource Analysis:** Integrates data from VirusTotal, AbuseIPDB, and IPinfo.
 * **IP Analysis:** Retrieves threat reputation, Abuse Score, and geolocation/ASN data.
-* **URL/Hash Analysis:** Uses VirusTotal for threat reputation and file/URL data.
+* **URL/Hash Analysis:** Uses VirusTotal for threat reputation and Hash-file(SHA256)/URL data.
 * **Caching:** Caches results (default 1 day) to avoid unnecessary API calls and conserve quotas.
 * **Operating Modes:** Supports interactive mode and non-interactive CLI mode.
 * **Reporting:** Ability to output analysis results to a dedicated report file.
+* **Logger:** Features a multi-level logger that records all script activities into a persistent log file with precise timestamps.
 * **Multiple platform usage:** Can be run on Linux, Windows and macOS systems.
 
 <small>[To the top](#ioc-analyzer)</small>
@@ -184,7 +185,26 @@ python3 main.py -r <Report_file.txt> -t <IOC_To_Analyze>
 
 ---
 
-### Test run of v1.0.0 @youtube
+### 4. Real-time Monitoring (Logging)
+The script maintains a comprehensive log of all actions. This is useful for debugging, auditing, or real-time monitoring of the analysis process.
+
+#### Monitoring logs (Linux/macOS):
+Open a separate terminal in the project root directory and run:
+```bash
+tail -f ioc_analyzer.log
+```
+
+#### Monitoring logs (Windows PowerShell):
+Open a separate terminal in the project root directory and run:
+```bash
+Get-Content ioc_analyzer.log -Wait
+```
+
+<img src="images/Logger.png" alt="Non-Interactive with report file output" width="500"/>
+
+---
+
+### 5. Test run of v1.0.0 @youtube
 
 <a href="https://www.youtube.com/watch?v=BN5-2iMqi4c">
   <img src="https://img.youtube.com/vi/BN5-2iMqi4c/0.jpg" alt="Video demonstration av IOC_Analyzer" width="480"/>
@@ -206,9 +226,9 @@ IOC_Analyzer/
 ├── ioc_cache.json      <-- Cache file created and maintained here upon use of script
 ├── <Report_File>       <-- Report file created and appended here upon use of -r flag.
 └── modules/
-    ├── virustotal.py:  Contains classes and methods for making API calls to VirusTotal.
-    ├── abuseipdb.py:   Contains classes and methods for making API calls to AbuseIPDB.
-    ├── ipinfo.py:      Contains classes and methods for making API calls to IPinfo.
+    ├── virustotal.py:  Handles API communication and data retrieval from VirusTotal.
+    ├── abuseipdb.py:   Handles API communication and data retrieval from AbuseIPDB.
+    ├── ipinfo.py:      Handles API communication and data retrieval from IPinfo.
     ├── cache.py:       Manages the local caching of results in `ioc_cache.json`.
     ├── formatter.py:   Responsible for taking raw results and formatting them into readable output.
     ├── pre_checks.py:  Handles initial validation (e.g., checking API keys and IOC type).

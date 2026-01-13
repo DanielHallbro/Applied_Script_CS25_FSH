@@ -32,7 +32,7 @@ def format_ip_analysis(results: list, ioc: str, is_cached = False) -> str:
         score = abuse_data['data'].get('abuseConfidenceScore', 'N/A')
         reports = abuse_data['data'].get('totalReports', 'N/A')
 
-        output += f"  > Community Malicious Score: {score}% (Scale 0-100)\n"
+        output += f"  > Abuse Score: {score}% (Scale 0-100)\n"
         output += f"  > Total Reports: {reports}\n"
         output += f"  > Latest Report: {abuse_data['data'].get('lastReportedAt', 'N/A')}\n"
     elif abuse_data and abuse_data['status'] == 'Skipped':
@@ -77,12 +77,12 @@ def format_other_analysis(result: dict, ioc: str, is_cached = False) -> str:
         output += f"  > Threat Reputation: {'Yes' if malicious > 0 else 'No'}\n"
         
         # Sets the correct report URL depending on type
-        if ioc_type == 'hash':
+        if ioc_type == 'HASH':
             output += f"  > Report: https://www.virustotal.com/gui/file/{ioc}\n"
         else:
             # For URL, remove protocol for safer link.
             output_ioc = ioc.replace('http://', '').replace('https://', '')
-            output += f"  > Report: https://www.virustotal.com/gui/{ioc_type}/{output_ioc}\n"
+            output += f"  > Report: https://www.virustotal.com/gui/url/{result.get('url_id', ioc)}\n"
         
     elif vt_data['status'] == 'Not Found':
          output += f"  > Result: No reports found for this {ioc_type}.\n"

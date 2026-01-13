@@ -1,29 +1,26 @@
 # The module handles environment checks (pre-flight checks) before the main analysis begins.
 import os
 import sys
-import socket
 from modules.logger import log
+import requests # Used for internet connection check.
 
 def check_internet_connection():
     # Check internet connection status by trying to reach a reliable server.
     
-    # Attempts to connect to Google's DNS server (8.8.8.8) on port 53 (DNS).
-    # This tests both network and DNS resolution.
-    REMOTE_SERVER = "8.8.8.8"
-    PORT = 53
-    TIMEOUT = 3
+    # Using https-request Google's public DNS server 
+    test_url = "https://www.google.com"
+    timeout = 3
     
     try:
-        # Attempts to create a connection to test network status
-        s = socket.create_connection((REMOTE_SERVER, PORT), TIMEOUT)
-        s.close()
+        # Attempts to create a connection to test network status. Only HEAD request for efficiency.
+        requests.head(test_url, timeout=timeout)
         log("Environment check succeeded: Internet connection is active.", 'DEBUG')
         return True
-    except socket.error:
+    except (requests.ConnectionError, requests.Timeout):
         # Captures connection errors
         log("Environment check failed: No internet connection or DNS problem.", 'ERROR')
         # Error messages and suggested actions
-        print(f"\n[ERROR] No internet connection. The script cannot reach the APIs.")
+        print(f"\n[ERROR] No internet connection. The script cannot reach external APIs.")
         print("  -> Action: Check your network status.")
         return False
     except Exception as e:
