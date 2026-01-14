@@ -1,7 +1,7 @@
 import os
 import requests
 from modules.logger import log
-import base64 # Needed for URL encoding. Explained further in function 'def _get_vt_endpoint'
+import base64 # Needed for URL encoding. Explained further in function 'def check_url_or_hash'.
 
 VT_API_KEY = os.getenv('VT_API_KEY') # Get API key from environment variable. Can be changed to direct input if prefered.
 BASE_URL = "https://www.virustotal.com/api/v3"
@@ -50,19 +50,6 @@ def check_ip(ioc: str) -> dict:
     except requests.exceptions.RequestException as e:
         log(f"VT: Connection error: {e}", 'ERROR')
         return {"source": "VirusTotal", "status": "Connection Error", "data": None}
-
-
-def _get_vt_endpoint(ioc: str) -> tuple[str, str]:
-    # Helper function to determine VT endpoint and analysis ID.
-    # Controlling if it is a SHA-256 hash (64 characters, alphanumeric)
-    if len(ioc) == 64 and ioc.isalnum():
-        return f"{BASE_URL}/files/{ioc}", "hash"
-
-    # For URL and unknown format we use the URL endpoint.
-    # VT requires the URL to be Base64-encoded (URL-safe) and stripped of padding.
-    # We do this locally instead of letting VirusTotal do it.
-    encoded_url = base64.urlsafe_b64encode(ioc.encode()).decode().strip("=")
-    return f"{BASE_URL}/urls/{encoded_url}", "url"
 
 
 def check_url_or_hash(ioc: str, ioc_type: str) -> dict:

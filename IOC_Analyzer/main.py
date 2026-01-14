@@ -92,7 +92,6 @@ def analyze_ioc(ioc,report_filename=None):
         api_results.append(vt_result)
         formatted_output = format_other_analysis(vt_result, ioc)
 
-        formatted_output = format_other_analysis(vt_result, ioc)
         if report_filename:
             generate_report(report_filename, formatted_output)
         else:
@@ -183,6 +182,7 @@ def main():
                 # Handling of keyboard interruption from the user e.g. Ctrl+C(Linux/macOS)
                 log("User interrupted the script via keyboard interrupt.", 'DEBUG')
                 print("\nAnalysis interrupted by the user. Exiting.")
+                save_cache() # Saves the cache at program termination (FB1).
                 break
             except Exception as e:
                 # Handling of unexpected errors

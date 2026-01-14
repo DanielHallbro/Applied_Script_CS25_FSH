@@ -62,13 +62,12 @@ def format_other_analysis(result: dict, ioc: str, is_cached = False) -> str:
     cache_status = "Cached result" if is_cached else ""
     output = f"\n--- ANALYSIS RESULT FOR {ioc} ---{cache_status}\n"
     
-    vt_data = result # Should be the only result
-    ioc_type = vt_data.get('ioc_type', 'N/A')
+    ioc_type = result.get('ioc_type', 'N/A')
     
     output += f"\n### 🦠 VirusTotal ({ioc_type.upper()} Analysis)\n"
     
-    if vt_data['status'] == 'Success':
-        stats = vt_data['data'].get('last_analysis_stats', {})
+    if result['status'] == 'Success':
+        stats = result['data'].get('last_analysis_stats', {})
         total_engines = sum(stats.values())
         malicious = stats.get('malicious', 0)
         
@@ -79,16 +78,14 @@ def format_other_analysis(result: dict, ioc: str, is_cached = False) -> str:
         # Sets the correct report URL depending on type
         if ioc_type == 'HASH':
             output += f"  > Report: https://www.virustotal.com/gui/file/{ioc}\n"
-        else:
-            # For URL, remove protocol for safer link.
-            output_ioc = ioc.replace('http://', '').replace('https://', '')
+        else:            
             output += f"  > Report: https://www.virustotal.com/gui/url/{result.get('url_id', ioc)}\n"
-        
-    elif vt_data['status'] == 'Not Found':
+
+    elif result['status'] == 'Not Found':
          output += f"  > Result: No reports found for this {ioc_type}.\n"
          
     else:
-        output += f"  > Status: {vt_data['status']}\n"
+        output += f"  > Status: {result['status']}\n"
         
     output += "\n--- ANALYSIS COMPLETE ---\n"
     return output

@@ -43,7 +43,7 @@ A Python script designed to automatically analyze Indicators of Compromise (IOCs
 
 ## Roadmap
 
-<img src="images/Roadmap.jpg" alt="Interactive use w/o flag" width="800"/>
+<img src="images/Roadmap.jpg" alt="Project Roadmap" width="800"/>
 
 <small>[To the top](#ioc-analyzer)</small>
 ---
@@ -94,10 +94,10 @@ The tool requires API keys (tokens) to operate. These should be stored in a sepa
     **VirusTotal (VT\_API\_KEY) is mandatory**. The others are optional but recommended for full analysis.
 
     ```bash
-    # CRITICAL REQUIREMENT. Key should be inserted within the qoutations ''
+    # CRITICAL REQUIREMENT. Key should be inserted within the quotations ''
     VT_API_KEY='your_virustotal_api_key'
 
-    # OPTIONAL APIs. Key should be inserted within the qoutations ''
+    # OPTIONAL APIs. Key should be inserted within the quotations ''
     ABUSE_API_KEY='your_abuseipdb_api_key'
     IPINFO_API_KEY='your_ipinfo_api_key'
     ```
@@ -196,7 +196,7 @@ tail -f ioc_analyzer.log
 
 #### Monitoring logs (Windows PowerShell):
 Open a separate terminal in the project root directory and run:
-```bash
+```powershell
 Get-Content ioc_analyzer.log -Wait
 ```
 
