@@ -41,4 +41,3 @@ ls
 cd script.sh
 echo Kan du hitta hit?
 
-
